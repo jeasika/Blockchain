@@ -1,12 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.0;
-
 import "./safemath.sol";
 
 contract ServiciosTecnicos {
 
     using SafeMath for uint256;
-    
     address owner;
     uint nextId;
 
@@ -19,6 +17,9 @@ contract ServiciosTecnicos {
     }
 
     Tecnico[] public tecnicos;
+
+    event Message(address indexed _from, address indexed _to, string message);
+
 
     constructor() {
         owner = msg.sender;
@@ -56,11 +57,20 @@ contract ServiciosTecnicos {
         return (tecnicos[index].id, tecnicos[index].contadorServicios, tecnicos[index].tecnicoAddress, tecnicos[index].categoria, tecnicos[index].location);
     }
 
-    function addService() external payable {
-        //por categoria elegir el personal
-        //emitir un evento
+    function addService(uint _id) external payable {
+        //por index elegir el personal
+        uint index = findIndex(_id);
         //function que lleve a pagar por el servicio
+        address newAddress = tecnicos[index].tecnicoAddress;
+        
         //suma del contador del tecnico
+        uint contador = tecnicos[index].contadorServicios;
+        contador = SafeMath.add(contador, 1);
+    }
+
+    /*Funcion para comunicarse entre el que adquiere el servicio y el técnico*/
+    function sendMessage(address _to, string calldata message) external {
+        emit Message(msg.sender, _to, message);
     }
 
 }
