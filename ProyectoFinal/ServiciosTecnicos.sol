@@ -4,6 +4,9 @@ import "./safemath.sol";
 
 contract ServiciosTecnicos {
 
+    /**************************
+    Declaración de variables 
+    ***************************/
     using SafeMath for uint256;
     address owner;
     uint nextId;
@@ -20,6 +23,9 @@ contract ServiciosTecnicos {
 
     event Message(address indexed _from, address indexed _to, string message);
 
+    /**************************
+    Declaración de funciones
+    ***************************/
     constructor() {
         owner = msg.sender;
     }
@@ -29,6 +35,7 @@ contract ServiciosTecnicos {
         _;
     }
 
+    //Funcion para encontrar al técnico por medio de su id
     function findIndex(uint _id) internal view returns (uint) {
         for (uint i = 0; i < tecnicos.length; i++) {
             if(tecnicos[i].id == _id){
@@ -38,7 +45,9 @@ contract ServiciosTecnicos {
         revert('Tecnico not found');
     }
 
-    /*Funciones que solo puede realizar el owner */
+    /**************************
+    Funciones que solo puede realizar el owner
+    ***************************/
     function createTecnico(uint _contadorServicios, address payable _tecnicoAddress, string memory _categoria, string memory _location) external onlyOwner {
         tecnicos.push(Tecnico(nextId, _contadorServicios, _tecnicoAddress, _categoria, _location));
         nextId++;
@@ -49,8 +58,9 @@ contract ServiciosTecnicos {
         delete tecnicos[index];
     }
 
-
-    /*Funciones que puede realizar cualquier usuario*/
+    /**************************
+    Funciones que puede realizar cualquier usuario
+    ***************************/
     function readTecnico(uint _id) public view returns (uint, uint, address payable, string memory, string memory) {
         uint index = findIndex(_id);
         return (tecnicos[index].id, tecnicos[index].contadorServicios, tecnicos[index].tecnicoAddress, tecnicos[index].categoria, tecnicos[index].location);
@@ -59,7 +69,7 @@ contract ServiciosTecnicos {
     function addService(uint _id, uint _amount) external payable {
         //por index elegir el personal
         uint index = findIndex(_id);
-        //function que lleve a pagar por el servicio
+        //function que lleve a pagar por el servicio dado el amount
         address payable newAddress = tecnicos[index].tecnicoAddress;
         newAddress.transfer(_amount);
         //suma del contador del tecnico
@@ -68,12 +78,12 @@ contract ServiciosTecnicos {
         tecnicos[index].contadorServicios = contador;
     }
 
+    //Obtiene el balance de cuenta de cualquier usuario desde la dirección
     function getBalance(address _tecnicoAddress) external view returns (uint) {
         return address(_tecnicoAddress).balance;
     }
 
-    /*Funcion para comunicarse entre el que adquiere el servicio y el técnico*/
-
+    //Funcion para comunicarse entre el que adquiere el servicio y el técnico
     function sendMessage(address _to, string calldata message) external {
         emit Message(msg.sender, _to, message);
     }
