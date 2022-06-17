@@ -20,7 +20,6 @@ contract ServiciosTecnicos {
 
     event Message(address indexed _from, address indexed _to, string message);
 
-
     constructor() {
         owner = msg.sender;
     }
@@ -57,18 +56,24 @@ contract ServiciosTecnicos {
         return (tecnicos[index].id, tecnicos[index].contadorServicios, tecnicos[index].tecnicoAddress, tecnicos[index].categoria, tecnicos[index].location);
     }
 
-    function addService(uint _id) external payable {
+    function addService(uint _id, uint _amount) external payable {
         //por index elegir el personal
         uint index = findIndex(_id);
         //function que lleve a pagar por el servicio
-        address newAddress = tecnicos[index].tecnicoAddress;
-        
+        address payable newAddress = tecnicos[index].tecnicoAddress;
+        newAddress.transfer(_amount);
         //suma del contador del tecnico
         uint contador = tecnicos[index].contadorServicios;
         contador = SafeMath.add(contador, 1);
+        tecnicos[index].contadorServicios = contador;
+    }
+
+    function getBalance(address _tecnicoAddress) external view returns (uint) {
+        return address(_tecnicoAddress).balance;
     }
 
     /*Funcion para comunicarse entre el que adquiere el servicio y el técnico*/
+
     function sendMessage(address _to, string calldata message) external {
         emit Message(msg.sender, _to, message);
     }
